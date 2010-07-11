@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Task Reminder</string>
+    <string name="edit_reminder_title">Task Reminder - Edit</string>
+    <string name="no_reminders">No Reminders Yet</string>
+    <string name="menu_insert">Add Reminder</string>
+    <string name="menu_delete">Delete Reminder</string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="confirm">Save</string>
+    <string name="edit_reminder">Edit Reminder</string>
+    <string name="date">Reminder Date</string>
+    <string name="time">Reminder Time</string>
+</resources>
