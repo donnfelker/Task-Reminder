@@ -64,11 +64,7 @@ public class ReminderEditActivity extends Activity {
        
         mRowId = savedInstanceState != null ? savedInstanceState.getLong(RemindersDbAdapter.KEY_ROWID) 
                 							: null;
-		if (mRowId == null) {
-			Bundle extras = getIntent().getExtras();            
-			mRowId = extras != null ? extras.getLong(RemindersDbAdapter.KEY_ROWID) 
-									: null;
-		}
+		setRowIdFromIntent();
 
 		populateFields();
 		
@@ -77,13 +73,37 @@ public class ReminderEditActivity extends Activity {
         	public void onClick(View view) {
         		saveState(); 
         		setResult(RESULT_OK);
-        	    Toast.makeText(ReminderEditActivity.this, getString(R.string.task_saved_message), Toast.LENGTH_SHORT).show(); 
+        	    Toast.makeText(ReminderEditActivity.this, getString(R.string.task_saved_message), Toast.LENGTH_SHORT).show();
+        	    finish(); 
         	}
           
         });
         
         
         registerButtonListenersAndSetDefaultText();
+    }
+
+	private void setRowIdFromIntent() {
+		if (mRowId == null) {
+			Bundle extras = getIntent().getExtras();            
+			mRowId = extras != null ? extras.getLong(RemindersDbAdapter.KEY_ROWID) 
+									: null;
+			
+		}
+	}
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mDbHelper.close(); 
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mDbHelper.open(); 
+    	setRowIdFromIntent();
+		populateFields();
     }
     
     @Override
@@ -207,17 +227,7 @@ public class ReminderEditActivity extends Activity {
         outState.putLong(RemindersDbAdapter.KEY_ROWID, mRowId);
     }
     
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //saveState();
-    }
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-		populateFields();
-    }
+
     
     private void saveState() {
         String title = mTitleText.getText().toString();
@@ -238,9 +248,9 @@ public class ReminderEditActivity extends Activity {
        
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
         Intent i = new Intent(this, OnAlarmReceiver.class);
-        
-        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0); 
-        alarmManager.cancel(pi);
+        i.putExtra(RemindersDbAdapter.KEY_ROWID, (long)mRowId); 
+
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, PendingIntent.FLAG_ONE_SHOT); 
         
         alarmManager.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pi);
         

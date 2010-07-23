@@ -1,6 +1,7 @@
 package com.dummies.android.taskreminder;
 
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,9 +17,13 @@ public class OnAlarmReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG, "Received wake up from alarm manager.");
 		
+		long rowid = intent.getExtras().getLong(RemindersDbAdapter.KEY_ROWID);
+		
 		WakeReminderIntentService.acquireStaticLock(context);
 		
-		context.startService(new Intent(context, ReminderService.class));
+		Intent i = new Intent(context, ReminderService.class); 
+		i.putExtra(RemindersDbAdapter.KEY_ROWID, rowid);  
+		context.startService(i);
 		 
 	}
 }

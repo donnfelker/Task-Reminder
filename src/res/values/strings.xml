@@ -14,4 +14,8 @@
     
     <!-- Toasts -->
     <string name="task_saved_message">Task has been saved</string>
+    
+    <!-- Notification Bar -->
+    <string name="notify_new_task_message">A task needs to be reviewed!</string>
+    <string name="notifiy_new_task_title">Task Reminder!</string>
 </resources>
