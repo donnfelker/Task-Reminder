@@ -6,12 +6,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.dummies.android.taskreminder.R;
-
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 public class ReminderEditActivity extends Activity {
 
@@ -73,8 +75,9 @@ public class ReminderEditActivity extends Activity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
 
         	public void onClick(View view) {
-        	    setResult(RESULT_OK);
-        	    finish();
+        		saveState(); 
+        		setResult(RESULT_OK);
+        	    Toast.makeText(ReminderEditActivity.this, getString(R.string.task_saved_message), Toast.LENGTH_SHORT).show(); 
         	}
           
         });
@@ -233,9 +236,24 @@ public class ReminderEditActivity extends Activity {
             mDbHelper.updateReminder(mRowId, title, body, reminderDateTime);
         }
        
-        // Update AlarmManager stuff 
-        //AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, operation)
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        Intent i = new Intent(this, OnAlarmReceiver.class);
+        
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0); 
+        alarmManager.cancel(pi);
+        
+        alarmManager.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pi);
+        
+        /*		
+        
+        AlarmManager mgr=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		Intent i=new Intent(context, OnAlarmReceiver.class);
+		PendingIntent pi=PendingIntent.getBroadcast(context, 0,i, 0);
+		
+		mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,SystemClock.elapsedRealtime()+30000,PERIOD,pi);
+		
+		*/
+        
     }
     
 }

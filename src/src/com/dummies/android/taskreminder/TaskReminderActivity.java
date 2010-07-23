@@ -39,8 +39,8 @@ public class TaskReminderActivity extends ListActivity {
     
 
 	private void fillData() {
-        Cursor notesCursor = mDbHelper.fetchAllReminders();
-        startManagingCursor(notesCursor);
+        Cursor remindersCursor = mDbHelper.fetchAllReminders();
+        startManagingCursor(remindersCursor);
         
         // Create an array to specify the fields we want to display in the list (only TITLE)
         String[] from = new String[]{RemindersDbAdapter.KEY_TITLE};
@@ -49,9 +49,9 @@ public class TaskReminderActivity extends ListActivity {
         int[] to = new int[]{R.id.text1};
         
         // Now create a simple cursor adapter and set it to display
-        SimpleCursorAdapter notes = 
-        	    new SimpleCursorAdapter(this, R.layout.notes_row, notesCursor, from, to);
-        setListAdapter(notes);
+        SimpleCursorAdapter reminders = 
+        	    new SimpleCursorAdapter(this, R.layout.notes_row, remindersCursor, from, to);
+        setListAdapter(reminders);
     }
     
     @Override
