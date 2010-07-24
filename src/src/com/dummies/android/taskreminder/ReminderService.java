@@ -8,8 +8,6 @@ import android.util.Log;
 
 public class ReminderService extends WakeReminderIntentService {
 
-	private static final int UNKNOWN_ROW_ID = -1;
-
 	public ReminderService() {
 		super("ReminderService");
 			}
@@ -19,9 +17,6 @@ public class ReminderService extends WakeReminderIntentService {
 		Log.d("ReminderService", "Doing work.");
 		Long rowId = intent.getExtras().getLong(RemindersDbAdapter.KEY_ROWID);
 		 
-		// In here, set a notification bar with an icon 
-		// that when the user clicks on the notification bar
-		// it opens the task at hand. 
 		NotificationManager mgr = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 						
 		Intent notificationIntent = new Intent(this, ReminderEditActivity.class); 
@@ -34,7 +29,7 @@ public class ReminderService extends WakeReminderIntentService {
 		note.defaults |= Notification.DEFAULT_SOUND; 
 		note.flags |= Notification.FLAG_AUTO_CANCEL; 
 		
-		// Note: Issue could occur if user ever enters over 2,147,483,647 tasks. (Max int value). 
+		// An issue could occur if user ever enters over 2,147,483,647 tasks. (Max int value). 
 		// I highly doubt this will ever happen. But is good to note. 
 		int id = (int)((long)rowId);
 		mgr.notify(id, note); 

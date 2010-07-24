@@ -7,12 +7,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -35,7 +32,7 @@ public class ReminderEditActivity extends Activity {
 	//
 	private static final String DATE_FORMAT = "yyyy-MM-dd"; 
 	private static final String TIME_FORMAT = "kk:mm";
-	private static final String DATE_TIME_FORMAT = DATE_FORMAT + " " + TIME_FORMAT; 
+	public static final String DATE_TIME_FORMAT = "yyyy-MM-dd kk:mm:ss";
 	
 	private EditText mTitleText;
     private EditText mBodyText;
@@ -51,10 +48,8 @@ public class ReminderEditActivity extends Activity {
         mCalendar = Calendar.getInstance(); 
         mDbHelper = new RemindersDbAdapter(this);
         mDbHelper.open();
-        setContentView(R.layout.note_edit);
+        setContentView(R.layout.reminder_edit);
         
-        
-       
         mTitleText = (EditText) findViewById(R.id.title);
         mBodyText = (EditText) findViewById(R.id.body);
         mDateButton = (Button) findViewById(R.id.reminder_date);
@@ -177,19 +172,19 @@ public class ReminderEditActivity extends Activity {
     	// Only populate the text boxes and change the calendar date
     	// if the row is not null from the database. 
         if (mRowId != null) {
-            Cursor note = mDbHelper.fetchReminder(mRowId);
-            startManagingCursor(note);
-            mTitleText.setText(note.getString(
-    	            note.getColumnIndexOrThrow(RemindersDbAdapter.KEY_TITLE)));
-            mBodyText.setText(note.getString(
-                    note.getColumnIndexOrThrow(RemindersDbAdapter.KEY_BODY)));
+            Cursor reminder = mDbHelper.fetchReminder(mRowId);
+            startManagingCursor(reminder);
+            mTitleText.setText(reminder.getString(
+    	            reminder.getColumnIndexOrThrow(RemindersDbAdapter.KEY_TITLE)));
+            mBodyText.setText(reminder.getString(
+                    reminder.getColumnIndexOrThrow(RemindersDbAdapter.KEY_BODY)));
             
 
             // Get the date from the database and format it for our use. 
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
             Date date = null;
 			try {
-				String dateString = note.getString(note.getColumnIndexOrThrow(RemindersDbAdapter.KEY_DATE_TIME)); 
+				String dateString = reminder.getString(reminder.getColumnIndexOrThrow(RemindersDbAdapter.KEY_DATE_TIME)); 
 				date = dateTimeFormat.parse(dateString);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
@@ -246,24 +241,15 @@ public class ReminderEditActivity extends Activity {
             mDbHelper.updateReminder(mRowId, title, body, reminderDateTime);
         }
        
-        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        /*AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
         Intent i = new Intent(this, OnAlarmReceiver.class);
         i.putExtra(RemindersDbAdapter.KEY_ROWID, (long)mRowId); 
 
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, PendingIntent.FLAG_ONE_SHOT); 
         
-        alarmManager.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pi);
-        
-        /*		
-        
-        AlarmManager mgr=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-		Intent i=new Intent(context, OnAlarmReceiver.class);
-		PendingIntent pi=PendingIntent.getBroadcast(context, 0,i, 0);
-		
-		mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,SystemClock.elapsedRealtime()+30000,PERIOD,pi);
-		
-		*/
-        
+        alarmManager.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pi);*/
+       
+        new ReminderManager(this).setReminder(mRowId, mCalendar); 
     }
     
 }
