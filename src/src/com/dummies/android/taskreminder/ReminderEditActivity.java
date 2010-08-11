@@ -10,8 +10,10 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -38,6 +40,7 @@ public class ReminderEditActivity extends Activity {
     private EditText mBodyText;
     private Button mDateButton;
     private Button mTimeButton;
+    private Button mConfirmButton;
     private Long mRowId;
     private RemindersDbAdapter mDbHelper;
     private Calendar mCalendar;  
@@ -45,36 +48,23 @@ public class ReminderEditActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCalendar = Calendar.getInstance(); 
+        
         mDbHelper = new RemindersDbAdapter(this);
         mDbHelper.open();
+        
         setContentView(R.layout.reminder_edit);
         
+        mCalendar = Calendar.getInstance(); 
         mTitleText = (EditText) findViewById(R.id.title);
         mBodyText = (EditText) findViewById(R.id.body);
         mDateButton = (Button) findViewById(R.id.reminder_date);
         mTimeButton = (Button) findViewById(R.id.reminder_time);
       
-        Button confirmButton = (Button) findViewById(R.id.confirm);
+        mConfirmButton = (Button) findViewById(R.id.confirm);
        
         mRowId = savedInstanceState != null ? savedInstanceState.getLong(RemindersDbAdapter.KEY_ROWID) 
                 							: null;
-		setRowIdFromIntent();
-
-		populateFields();
-		
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-
-        	public void onClick(View view) {
-        		saveState(); 
-        		setResult(RESULT_OK);
-        	    Toast.makeText(ReminderEditActivity.this, getString(R.string.task_saved_message), Toast.LENGTH_SHORT).show();
-        	    finish(); 
-        	}
-          
-        });
-        
-        
+      
         registerButtonListenersAndSetDefaultText();
     }
 
@@ -112,22 +102,7 @@ public class ReminderEditActivity extends Activity {
     	return super.onCreateDialog(id);
     }
     
-    private TimePickerDialog showTimePicker() {
-		
-    	TimePickerDialog timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-			
-			@Override
-			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-				mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-				mCalendar.set(Calendar.MINUTE, minute); 
-				updateTimeButtonText(); 
-			}
-		}, mCalendar.get(Calendar.HOUR_OF_DAY), mCalendar.get(Calendar.MINUTE), true); 
-		
-    	return timePicker; 
-	}
-
-	private DatePickerDialog showDatePicker() {
+ 	private DatePickerDialog showDatePicker() {
 		
 		
 		DatePickerDialog datePicker = new DatePickerDialog(ReminderEditActivity.this, new DatePickerDialog.OnDateSetListener() {
@@ -143,6 +118,21 @@ public class ReminderEditActivity extends Activity {
 		return datePicker; 
 	}
 
+   private TimePickerDialog showTimePicker() {
+		
+    	TimePickerDialog timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+			
+			@Override
+			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+				mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+				mCalendar.set(Calendar.MINUTE, minute); 
+				updateTimeButtonText(); 
+			}
+		}, mCalendar.get(Calendar.HOUR_OF_DAY), mCalendar.get(Calendar.MINUTE), true); 
+		
+    	return timePicker; 
+	}
+ 	
 	private void registerButtonListenersAndSetDefaultText() {
 
 		mDateButton.setOnClickListener(new View.OnClickListener() {
@@ -161,13 +151,24 @@ public class ReminderEditActivity extends Activity {
 				showDialog(TIME_PICKER_DIALOG); 
 			}
 		}); 
+		
+		mConfirmButton.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View view) {
+        		saveState(); 
+        		setResult(RESULT_OK);
+        	    Toast.makeText(ReminderEditActivity.this, getString(R.string.task_saved_message), Toast.LENGTH_SHORT).show();
+        	    finish(); 
+        	}
+          
+        });
+		
+		  updateDateButtonText(); 
+	      updateTimeButtonText();
 	}
-
-    
+   
     private void populateFields()  {
     	
-    	// Get a calendar object which starts with todays date.
-    	
+  	
     	
     	// Only populate the text boxes and change the calendar date
     	// if the row is not null from the database. 
@@ -186,16 +187,28 @@ public class ReminderEditActivity extends Activity {
 			try {
 				String dateString = reminder.getString(reminder.getColumnIndexOrThrow(RemindersDbAdapter.KEY_DATE_TIME)); 
 				date = dateTimeFormat.parse(dateString);
+	            mCalendar.setTime(date); 
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			} 
-            
-            // Tell the calendar what date we are now going to work with. 
-            mCalendar.setTime(date); 
-
-        } 
+        } else {
+        	// This is a new task - add defaults from preferences if set. 
+        	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this); 
+        	String defaultTitleKey = getString(R.string.pref_task_title_key); 
+        	String defaultTimeKey = getString(R.string.pref_default_time_from_now_key); 
+        	
+        	String defaultTitle = prefs.getString(defaultTitleKey, null);
+        	String defaultTime = prefs.getString(defaultTimeKey, null); 
+        	
+        	if(defaultTitle != null)
+        		mTitleText.setText(defaultTitle); 
+        	
+        	if(defaultTime != null)
+        		mCalendar.add(Calendar.MINUTE, Integer.parseInt(defaultTime));
+        	
+        }
         
         updateDateButtonText(); 
         updateTimeButtonText(); 
@@ -240,14 +253,6 @@ public class ReminderEditActivity extends Activity {
         } else {
             mDbHelper.updateReminder(mRowId, title, body, reminderDateTime);
         }
-       
-        /*AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        Intent i = new Intent(this, OnAlarmReceiver.class);
-        i.putExtra(RemindersDbAdapter.KEY_ROWID, (long)mRowId); 
-
-        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, PendingIntent.FLAG_ONE_SHOT); 
-        
-        alarmManager.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pi);*/
        
         new ReminderManager(this).setReminder(mRowId, mCalendar); 
     }

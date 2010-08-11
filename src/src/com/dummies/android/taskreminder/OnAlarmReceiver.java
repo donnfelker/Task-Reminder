@@ -12,7 +12,7 @@ public class OnAlarmReceiver extends BroadcastReceiver {
 	private static final String TAG = ComponentInfo.class.getCanonicalName(); 
 	
 	
-	@Override
+	@Override	
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG, "Received wake up from alarm manager.");
 		

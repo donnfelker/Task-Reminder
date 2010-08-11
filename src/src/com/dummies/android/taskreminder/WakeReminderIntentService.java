@@ -8,7 +8,7 @@ import android.os.PowerManager;
 public abstract class WakeReminderIntentService extends IntentService {
 abstract void doReminderWork(Intent intent);
 	
-	public static final String LOCK_NAME_STATIC="com.commonsware.android.syssvc.AppService.Static";
+	public static final String LOCK_NAME_STATIC="com.dummies.android.taskreminder.Static";
 	private static PowerManager.WakeLock lockStatic=null;
 	
 	public static void acquireStaticLock(Context context) {
@@ -18,12 +18,10 @@ abstract void doReminderWork(Intent intent);
 	synchronized private static PowerManager.WakeLock getLock(Context context) {
 		if (lockStatic==null) {
 			PowerManager mgr=(PowerManager)context.getSystemService(Context.POWER_SERVICE);
-			
 			lockStatic=mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
 														LOCK_NAME_STATIC);
 			lockStatic.setReferenceCounted(true);
 		}
-		
 		return(lockStatic);
 	}
 	
@@ -40,6 +38,4 @@ abstract void doReminderWork(Intent intent);
 			getLock(this).release();
 		}
 	}
-	
-	
 }

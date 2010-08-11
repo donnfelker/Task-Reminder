@@ -25,7 +25,7 @@ public class ReminderService extends WakeReminderIntentService {
 		PendingIntent pi = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT); 
 		
 		Notification note=new Notification(android.R.drawable.stat_sys_warning, getString(R.string.notify_new_task_message), System.currentTimeMillis());
-		note.setLatestEventInfo(this, getString(R.string.notifiy_new_task_title), getString(R.string.notify_new_task_message), pi);
+		note.setLatestEventInfo(this, getString(R.string.notify_new_task_title), getString(R.string.notify_new_task_message), pi);
 		note.defaults |= Notification.DEFAULT_SOUND; 
 		note.flags |= Notification.FLAG_AUTO_CANCEL; 
 		
@@ -36,5 +36,4 @@ public class ReminderService extends WakeReminderIntentService {
 		
 		
 	}
-
 }

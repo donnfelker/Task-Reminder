@@ -3,8 +3,7 @@
     <application 
     	android:icon="@drawable/icon" 
     	android:debuggable="true" 
-    	android:label="@string/app_name"
-    	android:theme="@android:style/Theme.Light">
+    	android:label="@string/app_name">
         <activity android:name=".ReminderListActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -12,7 +11,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ReminderEditActivity" android:label="@string/edit_reminder_title"/>
-        
+        <activity android:name=".TaskPreferences" android:label="@string/app_name" />
 		<receiver android:name=".OnBootReceiver">
 				<intent-filter>
 						<action android:name="android.intent.action.BOOT_COMPLETED" />

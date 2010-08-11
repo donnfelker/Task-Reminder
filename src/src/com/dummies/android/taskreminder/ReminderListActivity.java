@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -20,9 +21,6 @@ public class ReminderListActivity extends ListActivity {
     private static final int ACTIVITY_CREATE=0;
     private static final int ACTIVITY_EDIT=1;
     
-    private static final int INSERT_ID = Menu.FIRST;
-    private static final int DELETE_ID = Menu.FIRST + 1;
-
     private RemindersDbAdapter mDbHelper;
     
     /** Called when the activity is first created. */
@@ -57,15 +55,20 @@ public class ReminderListActivity extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, INSERT_ID, 0, R.string.menu_insert).setIcon(android.R.drawable.ic_menu_add);
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.list_menu, menu); 
         return true;
     }
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch(item.getItemId()) {
-        case INSERT_ID:
+        case R.id.menu_insert: 
             createReminder();
+            return true; 
+        case R.id.menu_settings: 
+        	Intent i = new Intent(this, TaskPreferences.class); 
+        	startActivity(i); 
             return true;
         }
        
@@ -76,13 +79,14 @@ public class ReminderListActivity extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, DELETE_ID, 0, R.string.menu_delete);
+		MenuInflater mi = getMenuInflater(); 
+		mi.inflate(R.menu.list_menu_item_longpress, menu); 
 	}
 
     @Override
 	public boolean onContextItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
-    	case DELETE_ID:
+    	case R.id.menu_delete:
     		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 	        mDbHelper.deleteReminder(info.id);
 	        fillData();
@@ -105,8 +109,7 @@ public class ReminderListActivity extends ListActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, 
-                                    Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         fillData();
     }
