@@ -105,7 +105,7 @@ public class ReminderListActivity extends ListActivity {
         super.onListItemClick(l, v, position, id);
         Intent i = new Intent(this, ReminderEditActivity.class);
         i.putExtra(RemindersDbAdapter.KEY_ROWID, id);
-        startActivityForResult(i, ACTIVITY_EDIT);
+        startActivityForResult(i, ACTIVITY_EDIT); 
     }
 
     @Override

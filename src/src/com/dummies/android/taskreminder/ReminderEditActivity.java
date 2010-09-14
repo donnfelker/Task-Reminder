@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -50,7 +51,6 @@ public class ReminderEditActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         mDbHelper = new RemindersDbAdapter(this);
-        mDbHelper.open();
         
         setContentView(R.layout.reminder_edit);
         
@@ -188,10 +188,8 @@ public class ReminderEditActivity extends Activity {
 				String dateString = reminder.getString(reminder.getColumnIndexOrThrow(RemindersDbAdapter.KEY_DATE_TIME)); 
 				date = dateTimeFormat.parse(dateString);
 	            mCalendar.setTime(date); 
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
 			} catch (ParseException e) {
-				e.printStackTrace();
+				Log.e("ReminderEditActivity", e.getMessage(), e); 
 			} 
         } else {
         	// This is a new task - add defaults from preferences if set. 
@@ -243,7 +241,7 @@ public class ReminderEditActivity extends Activity {
 
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT); 
     	String reminderDateTime = dateTimeFormat.format(mCalendar.getTime());
-        
+
         if (mRowId == null) {
         	
         	long id = mDbHelper.createReminder(title, body, reminderDateTime);

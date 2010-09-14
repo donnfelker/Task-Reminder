@@ -1,9 +1,7 @@
 package com.dummies.android.taskreminder;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -45,12 +43,12 @@ public class OnBootReceiver extends BroadcastReceiver {
 				SimpleDateFormat format = new SimpleDateFormat(ReminderEditActivity.DATE_TIME_FORMAT); 
 				
 				try {
-					Date date = format.parse(dateTime);
+					java.util.Date date = format.parse(dateTime);
 					cal.setTime(date);
 					
 					reminderMgr.setReminder(rowId, cal); 
-				} catch (ParseException e) {
-					e.printStackTrace();
+				} catch (java.text.ParseException e) {
+					Log.e("OnBootReceiver", e.getMessage(), e);
 				}
 				
 				cursor.moveToNext(); 
